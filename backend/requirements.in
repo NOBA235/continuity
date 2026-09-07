@@ -1,0 +1,31 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+clickhouse-connect
+google-genai
+google-adk
+# NOT mcp-clickhouse: it and google-adk's MCP client need incompatible
+# major versions of `mcp`. mcp-clickhouse runs as an isolated subprocess
+# instead -- see app/config.py's mcp_clickhouse_command/_args and the
+# Dockerfile. `mcp` is pinned here explicitly so a future re-resolve can't
+# silently pull in a 2.x line that breaks google-adk's mcp_toolset.py
+# (it imports mcp.shared.session.ProgressFnT, removed in mcp 2.x).
+mcp==1.29.1
+python-multipart
+python-dotenv
+opencv-python-headless
+tenacity
+orjson
+httpx
+# --- Auth ---
+pyjwt
+bcrypt
+email-validator
+# --- Cloud storage ---
+google-cloud-storage
+# --- Observability ---
+structlog
+opentelemetry-instrumentation-fastapi
+opentelemetry-exporter-otlp-proto-http
+prometheus-fastapi-instrumentator

@@ -1,0 +1,56 @@
+# Local development stack. Production deployments typically point
+# CLICKHOUSE_HOST at a managed ClickHouse Cloud instance instead of running
+# the `clickhouse` service below -- see backend/.env.example.
+#
+# Usage:
+#   cp backend/.env.example backend/.env
+#   # then fill in GEMINI_API_KEY and JWT_SECRET_KEY (openssl rand -hex 32)
+#   docker compose up --build
+
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.8
+    ports:
+      - "8123:8123" # HTTP interface (what clickhouse-connect and mcp-clickhouse use)
+      - "9000:9000" # native TCP interface (for clickhouse-client)
+    environment:
+      CLICKHOUSE_DB: continuity_agent
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: local-dev-password
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - backend/.env
+    environment:
+      CLICKHOUSE_HOST: clickhouse
+      CLICKHOUSE_PORT: 8123
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: local-dev-password
+      CLICKHOUSE_SECURE: "false"
+      CORS_ALLOW_ORIGINS: '["http://localhost:3000"]'
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8080
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  clickhouse_data:

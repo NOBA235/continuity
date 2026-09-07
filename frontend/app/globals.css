@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+/*
+  Continuity.Agent design system.
+
+  The visual language borrows from a color-grading / screening-room
+  environment rather than a generic SaaS dashboard: a near-black warm
+  charcoal base, a "tally light" red reserved for critical continuity
+  flags, and monospace reserved strictly for timecodes and frame numbers
+  (never for decorative labels). Headings use a serif to nod to the
+  screenplay page a script supervisor actually works from; UI chrome uses
+  a plain system sans so it never competes with the content it's labeling.
+*/
+@theme {
+  --color-stage-950: #0f1113;
+  --color-stage-900: #15181b;
+  --color-stage-800: #1c2024;
+  --color-stage-700: #262b30;
+  --color-stage-600: #33393f;
+  --color-stage-500: #4a5158;
+  --color-stage-400: #7b838b;
+  --color-stage-300: #a8afb5;
+  --color-stage-100: #ece9e2;
+
+  --color-flag-critical: #e0483e;
+  --color-flag-high: #e0483e;
+  --color-flag-medium: #d9a441;
+  --color-flag-low: #7b9fc7;
+  --color-flag-resolved: #4f9d69;
+
+  --color-agent-accent: #5b8def;
+
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-stage-950);
+  color: var(--color-stage-100);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrub-bar tick styling used by TimelineOverlay; kept out of Tailwind
+   utility classes since it targets a native <input type="range"> thumb. */
+.scrub-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: var(--color-stage-100);
+  border: 2px solid var(--color-stage-950);
+  cursor: pointer;
+  margin-top: -4px;
+}
+
+.scrub-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--color-stage-600);
+}
+
+.scrub-range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: var(--color-stage-100);
+  border: 2px solid var(--color-stage-950);
+  cursor: pointer;
+}
+
+.scrub-range::-moz-range-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--color-stage-600);
+}
