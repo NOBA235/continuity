@@ -51,7 +51,6 @@ app.add_middleware(
 )
 app.add_middleware(RequestContextMiddleware)
 
-configure_tracing(app, _settings)
 configure_metrics(app, _settings.metrics_enabled)
 
 app.include_router(auth.router)
@@ -59,6 +58,8 @@ app.include_router(ingestion.router)
 app.include_router(frames.router)
 app.include_router(anomalies.router)
 app.include_router(agent.router)
+
+configure_tracing(app, _settings)
 
 
 @app.exception_handler(Exception)

@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS continuity_agent.ingestion_jobs
     scene_id          String,
     take_id           String,
     source_filename   String,
-    storage_key       String DEFAULT '',  -- backend-agnostic location; see app/services/object_storage.py
+    storage_key       String DEFAULT '',  -- backend-agnostic location, see app/services/object_storage.py
     status            Enum8('pending' = 1, 'extracting_frames' = 2, 'analyzing' = 3,
                              'completed' = 4, 'failed' = 5),
     total_frames      UInt32 DEFAULT 0,
