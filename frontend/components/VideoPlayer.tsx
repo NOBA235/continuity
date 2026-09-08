@@ -25,11 +25,13 @@ export function VideoPlayer({ videoUrl, anomalies, onSeekToAnomaly }: VideoPlaye
   const [isMuted, setIsMuted] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [playbackError, setPlaybackError] = useState<string | null>(null);
 
   useEffect(() => {
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
+    setPlaybackError(null);
   }, [videoUrl]);
 
   const markers = useMemo(
@@ -47,8 +49,10 @@ export function VideoPlayer({ videoUrl, anomalies, onSeekToAnomaly }: VideoPlaye
     const video = videoRef.current;
     if (!video) return;
     if (video.paused) {
-      void video.play();
-      setIsPlaying(true);
+      void video.play().catch(() => {
+        setIsPlaying(false);
+        setPlaybackError("This video cannot be played by this browser.");
+      });
     } else {
       video.pause();
       setIsPlaying(false);
@@ -80,17 +84,24 @@ export function VideoPlayer({ videoUrl, anomalies, onSeekToAnomaly }: VideoPlaye
   return (
     <div className="w-full">
       <div className="relative aspect-video w-full overflow-hidden rounded-sm border border-stage-700 bg-black">
-        <video
-          ref={videoRef}
-          src={videoUrl}
-          muted={isMuted}
-          className="h-full w-full"
-          onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-          onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-          onClick={togglePlay}
-        />
+        {playbackError ? (
+          <p className="absolute inset-0 flex items-center justify-center px-6 text-center font-mono text-sm text-stage-300">
+            {playbackError}
+          </p>
+        ) : (
+          <video
+            ref={videoRef}
+            src={videoUrl}
+            muted={isMuted}
+            className="h-full w-full"
+            onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+            onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onError={() => setPlaybackError("This video cannot be played by this browser.")}
+            onClick={togglePlay}
+          />
+        )}
       </div>
 
       <div className="mt-3 flex items-center gap-3">

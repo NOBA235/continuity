@@ -208,7 +208,10 @@ function Dashboard({ currentUser, onLogout }: { currentUser: CurrentUser; onLogo
     });
   }
 
-  const videoUrl = videoJob ? videoStreamUrl(videoJob.job_id) : null;
+  // The upload response arrives before its background ingestion job is
+  // persisted. Loading the stream before completion can return a 404 JSON
+  // response, which a <video> element reports as an unsupported source.
+  const videoUrl = videoJob?.status === "completed" ? videoStreamUrl(videoJob.job_id) : null;
 
   return (
     <main className="min-h-screen">
@@ -246,6 +249,7 @@ function Dashboard({ currentUser, onLogout }: { currentUser: CurrentUser; onLogo
         onUploaded={handleUploaded}
         onRunAgent={handleRunAgent}
         isAgentRunning={isAgentRunning}
+        canRunAgent={videoJob?.status === "completed"}
         canEdit={currentUser.role !== "viewer"}
       />
 

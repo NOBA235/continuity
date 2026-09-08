@@ -16,6 +16,7 @@ interface SceneTakeBarProps {
   onUploaded: (jobId: string) => void;
   onRunAgent: () => void;
   isAgentRunning: boolean;
+  canRunAgent: boolean;
   canEdit: boolean;
 }
 
@@ -29,6 +30,7 @@ export function SceneTakeBar({
   onUploaded,
   onRunAgent,
   isAgentRunning,
+  canRunAgent,
   canEdit,
 }: SceneTakeBarProps) {
   const [isUploading, setIsUploading] = useState(false);
@@ -120,8 +122,14 @@ export function SceneTakeBar({
         <button
           type="button"
           onClick={onRunAgent}
-          disabled={isAgentRunning || !selectedScene || !selectedTake || !canEdit}
-          title={canEdit ? undefined : "Viewers can't run the continuity agent"}
+          disabled={isAgentRunning || !selectedScene || !selectedTake || !canEdit || !canRunAgent}
+          title={
+            !canEdit
+              ? "Viewers can't run the continuity agent"
+              : !canRunAgent
+                ? "Wait for dailies ingestion to complete before running the continuity check"
+                : undefined
+          }
           className={cn(
             "inline-flex items-center gap-2 rounded-sm px-3 py-1.5 text-sm font-medium transition",
             "bg-agent-accent/15 text-agent-accent hover:bg-agent-accent/25 disabled:opacity-50",
