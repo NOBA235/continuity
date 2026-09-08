@@ -18,6 +18,8 @@ then reason, then call another tool"; that orchestration is ADK's job.
 """
 from __future__ import annotations
 
+import os
+
 from google.adk.agents import LlmAgent
 from google.adk.tools import FunctionTool
 from google.adk.tools.mcp_tool.mcp_session_manager import StdioConnectionParams
@@ -58,6 +60,11 @@ def build_continuity_agent(settings: Settings | None = None) -> LlmAgent:
     """Construct the continuity agent. Call once per process; ADK agents are
     stateless definitions -- per-run state lives in the Session, not here."""
     settings = settings or get_settings()
+    # google-genai accepts the explicit api_key used by gemini_vision.py,
+    # while Google ADK resolves its client credentials from GOOGLE_API_KEY.
+    # Bridge the project's single GEMINI_API_KEY into ADK before the model is
+    # constructed so both paths use the same credential.
+    os.environ["GOOGLE_API_KEY"] = settings.gemini_api_key
     return LlmAgent(
         model=settings.gemini_agent_model,
         name=AGENT_NAME,

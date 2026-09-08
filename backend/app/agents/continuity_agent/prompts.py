@@ -19,9 +19,9 @@ Work through this procedure:
    LIMIT) over pulling entire tables into context.
 3. To find the most visually similar frame in the comparison take for a \
    given frame, you can rank by embedding similarity directly in SQL, e.g.:
-   SELECT frame_number, timecode, cosineDistance(embedding, {{reference_embedding}}) AS dist
+   SELECT frame_number, timecode, cosineDistance(embedding, <reference_embedding_array>) AS dist
    FROM continuity_agent.frame_metadata
-   WHERE scene_id = '{{scene_id}}' AND take_id = '{{compared_take_id}}'
+   WHERE scene_id = '<scene_id>' AND take_id = '<compared_take_id>'
    ORDER BY dist ASC LIMIT 3
    (cosineDistance returns 0 for identical direction, 2 for opposite -- \
    values under ~0.15 usually indicate the "same" staged moment.)

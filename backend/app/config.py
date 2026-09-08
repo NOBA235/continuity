@@ -38,7 +38,7 @@ class Settings(BaseSettings):
     gemini_vision_model: str = Field("gemini-3.6-flash")
     # The continuity-reasoning agent gets the strongest available model since
     # it runs once per scene/take, not once per frame.
-    gemini_agent_model: str = Field("gemini-3-pro-preview")
+    gemini_agent_model: str = Field("gemini-3.1-pro-preview")
     # Natively multimodal embedding model, used to embed each keyframe so
     # continuity_agent can do nearest-neighbour comparisons across takes.
     gemini_embedding_model: str = Field("gemini-embedding-2")

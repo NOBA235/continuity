@@ -42,13 +42,6 @@ app = FastAPI(
     root_path=_settings.api_root_path,
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=_settings.cors_allow_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 app.add_middleware(RequestContextMiddleware)
 
 configure_metrics(app, _settings.metrics_enabled)
@@ -60,6 +53,16 @@ app.include_router(anomalies.router)
 app.include_router(agent.router)
 
 configure_tracing(app, _settings)
+
+# Keep CORS outermost so browser clients receive CORS headers even when a
+# downstream route raises an unhandled exception and returns HTTP 500.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_settings.cors_allow_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.exception_handler(Exception)

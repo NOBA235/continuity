@@ -19,14 +19,16 @@ from app.services.object_storage import get_storage_backend
 logger = logging.getLogger("continuity_agent.routers.ingestion")
 router = APIRouter(prefix="/api/ingestion", tags=["ingestion"])
 
-_SAFE_ID = re.compile(r"^[A-Za-z0-9_\-\.]+$")
+_SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 _\-\.]*$")
 
 
 def _validate_id(value: str, field_name: str) -> str:
-    if not _SAFE_ID.match(value):
+    value = value.strip()
+    if not value or not _SAFE_ID.fullmatch(value):
         raise HTTPException(
             status.HTTP_422_UNPROCESSABLE_ENTITY,
-            f"{field_name} must contain only letters, numbers, '-', '_', '.'",
+            f"{field_name} must start with a letter or number and contain only "
+            "letters, numbers, spaces, '-', '_', '.'",
         )
     return value
 
