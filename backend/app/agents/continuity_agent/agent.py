@@ -19,6 +19,9 @@ then reason, then call another tool"; that orchestration is ADK's job.
 from __future__ import annotations
 
 import os
+import shutil
+import sys
+from pathlib import Path
 
 from google.adk.agents import LlmAgent
 from google.adk.tools import FunctionTool
@@ -34,10 +37,13 @@ AGENT_NAME = "continuity_anomaly_agent"
 
 
 def _build_clickhouse_mcp_toolset(settings: Settings) -> McpToolset:
+    mcp_command = settings.mcp_clickhouse_command
+    if mcp_command == "uv":
+        mcp_command = shutil.which("uv") or str(Path(sys.executable).with_name("uv.exe"))
     return McpToolset(
         connection_params=StdioConnectionParams(
             server_params=StdioServerParameters(
-                command=settings.mcp_clickhouse_command,
+                command=mcp_command,
                 args=settings.mcp_clickhouse_args,
                 env={
                     "CLICKHOUSE_HOST": settings.clickhouse_host,
