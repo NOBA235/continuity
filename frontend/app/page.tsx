@@ -86,6 +86,7 @@ function Dashboard({ currentUser, onLogout }: { currentUser: CurrentUser; onLogo
   const [executionId, setExecutionId] = useState<string | null>(null);
   const [executionSteps, setExecutionSteps] = useState<AgentExecutionStep[]>([]);
   const [isAgentRunning, setIsAgentRunning] = useState(false);
+  const [tracePollAttempts, setTracePollAttempts] = useState(0);
 
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -145,6 +146,7 @@ function Dashboard({ currentUser, onLogout }: { currentUser: CurrentUser; onLogo
   useEffect(() => {
     if (!executionId) return;
     setIsAgentRunning(true);
+    setTracePollAttempts(0);
     const interval = setInterval(() => {
       getExecutionTrace(executionId)
         .then((steps) => {
@@ -159,11 +161,20 @@ function Dashboard({ currentUser, onLogout }: { currentUser: CurrentUser; onLogo
           }
         })
         .catch((err) => {
-          // 404 just means the run hasn't written its first row yet -- keep polling.
-          if (!(err instanceof ApiError && err.status === 404)) {
-            setIsAgentRunning(false);
-            clearInterval(interval);
+          if (err instanceof ApiError && err.status === 404) {
+            setTracePollAttempts((attempts) => {
+              const nextAttempts = attempts + 1;
+              if (nextAttempts >= 12) {
+                setIsAgentRunning(false);
+                setLoadError("The continuity check did not produce a trace. Check the backend logs.");
+                clearInterval(interval);
+              }
+              return nextAttempts;
+            });
+            return;
           }
+          setIsAgentRunning(false);
+          clearInterval(interval);
         });
     }, POLL_INTERVAL_MS);
     return () => clearInterval(interval);
