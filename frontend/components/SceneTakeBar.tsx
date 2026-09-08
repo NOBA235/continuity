@@ -58,43 +58,39 @@ export function SceneTakeBar({
         <label className="text-xs uppercase tracking-wider text-stage-400" htmlFor="scene-select">
           Scene
         </label>
-        <select
+        <input
           id="scene-select"
+          list="scene-options"
           value={selectedScene ?? ""}
           onChange={(e) => onSelectScene(e.target.value)}
-          className="rounded-sm border border-stage-600 bg-stage-800 px-2 py-1 text-sm text-stage-100"
-        >
-          <option value="" disabled>
-            Select scene…
-          </option>
+          placeholder="Enter scene"
+          className="w-36 rounded-sm border border-stage-600 bg-stage-800 px-2 py-1 text-sm text-stage-100 placeholder:text-stage-500"
+        />
+        <datalist id="scene-options">
           {scenes.map((scene) => (
-            <option key={scene} value={scene}>
-              {scene}
-            </option>
+            <option key={scene} value={scene} />
           ))}
-        </select>
+        </datalist>
       </div>
 
       <div className="flex items-center gap-2">
         <label className="text-xs uppercase tracking-wider text-stage-400" htmlFor="take-select">
           Take
         </label>
-        <select
+        <input
           id="take-select"
+          list="take-options"
           value={selectedTake ?? ""}
           onChange={(e) => onSelectTake(e.target.value)}
           disabled={!selectedScene}
-          className="rounded-sm border border-stage-600 bg-stage-800 px-2 py-1 text-sm text-stage-100 disabled:opacity-50"
-        >
-          <option value="" disabled>
-            Select take…
-          </option>
+          placeholder="Enter take"
+          className="w-36 rounded-sm border border-stage-600 bg-stage-800 px-2 py-1 text-sm text-stage-100 placeholder:text-stage-500 disabled:opacity-50"
+        />
+        <datalist id="take-options">
           {takes.map((take) => (
-            <option key={take} value={take}>
-              {take}
-            </option>
+            <option key={take} value={take} />
           ))}
-        </select>
+        </datalist>
       </div>
 
       <div className="ml-auto flex items-center gap-2">

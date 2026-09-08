@@ -10,14 +10,20 @@ router = APIRouter(prefix="/api/frames", tags=["frames"], dependencies=[Depends(
 
 @router.get("/scenes", response_model=list[str])
 def list_scenes() -> list[str]:
-    rows = query("SELECT DISTINCT scene_id FROM frame_metadata ORDER BY scene_id")
+    rows = query(
+        "SELECT scene_id FROM frame_metadata "
+        "UNION DISTINCT SELECT scene_id FROM ingestion_jobs "
+        "ORDER BY scene_id"
+    )
     return [r["scene_id"] for r in rows]
 
 
 @router.get("/scenes/{scene_id}/takes", response_model=list[str])
 def list_takes(scene_id: str) -> list[str]:
     rows = query(
-        "SELECT DISTINCT take_id FROM frame_metadata WHERE scene_id = {scene_id:String} "
+        "SELECT take_id FROM frame_metadata WHERE scene_id = {scene_id:String} "
+        "UNION DISTINCT "
+        "SELECT take_id FROM ingestion_jobs WHERE scene_id = {scene_id:String} "
         "ORDER BY take_id",
         {"scene_id": scene_id},
     )
