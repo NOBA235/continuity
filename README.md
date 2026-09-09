@@ -214,7 +214,7 @@ This is not a toy demo. It is a working system designed around real media-operat
 
 ## License
 
-This project is currently distributed as a private/internal build. Add your preferred license before open-sourcing or external distribution.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ## Acknowledgements
 
