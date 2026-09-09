@@ -75,8 +75,16 @@ async def run_continuity_check(
     )
     user_message = types.Content(role="user", parts=[types.Part.from_text(text=task_description)])
 
-    rows: list[list] = []
-    step_number = 0
+    # Write a row before the first model event. Without this, a startup
+    # failure left the polling endpoint with no execution to return, causing
+    # the dashboard to report repeated 404s instead of the actual failure.
+    step_number = 1
+    rows: list[list] = [
+        _log_row(
+            execution_id, scene_id, take_id, step_number, "started", "",
+            {"status": "started"}, None, 0,
+        )
+    ]
     anomalies_flagged = 0
     final_report = ""
     step_started = time.monotonic()
@@ -130,6 +138,14 @@ async def run_continuity_check(
                     "", None, {"error_code": event.error_code, "message": event.error_message},
                     latency_ms,
                 ))
+    except Exception as exc:
+        step_number += 1
+        rows.append(_log_row(
+            execution_id, scene_id, take_id, step_number, "error", "",
+            None, {"message": str(exc)}, int((time.monotonic() - step_started) * 1000),
+        ))
+        logger.exception("Continuity check %s failed", execution_id)
+        raise
     finally:
         if rows:
             insert_rows("agent_execution_log", LOG_COLUMNS, rows)

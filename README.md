@@ -74,14 +74,14 @@ missing — `app/config.py` raises a validation error at startup instead
 
 JWT-based, with three roles: `viewer` (read-only), `editor` (can upload
 dailies, resolve anomalies, run the agent), `supervisor` (all of the above,
-plus creating accounts). The **first account ever created** on a fresh
-database gets no-auth-required bootstrap access and is always granted
-`supervisor`, regardless of what role the request asked for — there has to
-be one admin who can invite everyone else. Every registration after that
-requires a valid supervisor access token (`POST /api/auth/register`).
+plus creating accounts with elevated roles). Anyone can sign up through
+`POST /api/auth/register`; public signups are always assigned the `viewer`
+role, regardless of a submitted role. The **first account ever created** on
+a fresh database is automatically granted `supervisor` so there is an admin.
+Signed-in supervisors may create editor or supervisor accounts.
 
 ```bash
-# Bootstrap the first account (only works while the users table is empty)
+# Create an account (the first is a supervisor; later public signups are viewers)
 curl -X POST http://localhost:8080/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{"email": "you@studio.com", "password": "a-real-password"}'
@@ -192,10 +192,9 @@ npm run dev
 
 ## Using it
 
-1. Open the dashboard. On first run, use the **First-time setup** tab to
-   create the initial (supervisor) account -- this only works once, while
-   the `users` table is empty. After that, everyone signs in through
-   **Sign in**. Tokens are stored in `localStorage` and refreshed
+1. Open the dashboard and use **Create account** to sign up, or **Sign in**
+   if you already have an account. The first account is a supervisor; later
+   signups are viewers. Tokens are stored in `localStorage` and refreshed
    automatically on expiry (see "Auth" above for the one limitation this
    implies).
 2. Pick (or type) a scene id and take id.

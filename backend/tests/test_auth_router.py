@@ -56,15 +56,30 @@ def test_register_bootstraps_first_account_as_supervisor_without_auth(client, mo
     assert kwargs["role"].value == "supervisor"
 
 
-def test_register_requires_auth_after_bootstrap(client, mocker):
+def test_register_after_bootstrap_creates_viewer_without_auth(client, mocker):
+    from app.models.schemas import UserPublic, UserRole
+
     mocker.patch("app.routers.auth.user_store.count_users", return_value=1)
+    mocker.patch("app.routers.auth.user_store.get_user_by_email", return_value=None)
+    created = mocker.patch(
+        "app.routers.auth.user_store.create_user",
+        return_value=UserPublic(
+            user_id=uuid4(),
+            email="second@studio-pictures.io",
+            display_name="",
+            role=UserRole.viewer,
+            created_at=datetime.now(timezone.utc),
+        ),
+    )
 
     response = client.post(
         "/api/auth/register",
-        json={"email": "second@studio-pictures.io", "password": "a-real-password"},
+        json={"email": "second@studio-pictures.io", "password": "a-real-password", "role": "supervisor"},
     )
 
-    assert response.status_code == 401
+    assert response.status_code == 201
+    _, kwargs = created.call_args
+    assert kwargs["role"].value == "viewer"
 
 
 def test_register_rejects_non_supervisor_token(client, mocker):

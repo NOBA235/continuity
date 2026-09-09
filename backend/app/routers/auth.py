@@ -41,24 +41,19 @@ def register(
     """
     Create an account.
 
-    The very first account on a fresh deployment is created with no auth at
-    all (there is nobody to authenticate as yet) and is always granted the
-    `supervisor` role regardless of what the request asked for, so there is
-    guaranteed to be at least one admin who can provision everyone else.
-    Every subsequent registration requires a valid supervisor access token.
+    Anyone may create a regular viewer account. The very first account on a
+    fresh deployment is promoted to supervisor so the application always has
+    an administrator. A signed-in supervisor can create accounts with any
+    role; the role in an unauthenticated request is deliberately ignored so a
+    public signup cannot grant itself elevated access.
     """
     is_bootstrap = user_store.count_users() == 0
 
     if is_bootstrap:
         role = UserRole.supervisor
+    elif credentials is None:
+        role = UserRole.viewer
     else:
-        if credentials is None:
-            raise HTTPException(
-                status.HTTP_401_UNAUTHORIZED,
-                "Registration is invite-only after the first account; sign in as a "
-                "supervisor to create additional accounts.",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
         try:
             payload = decode_token(settings, credentials.credentials, expected_type=TokenType.access)
         except TokenError as exc:

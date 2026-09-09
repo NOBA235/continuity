@@ -2,6 +2,7 @@ import type { UserRole } from "./types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 const STORAGE_KEY = "continuity_agent_tokens";
+export const AUTH_REQUIRED_EVENT = "continuity-auth-required";
 
 export interface StoredTokens {
   access_token: string;
@@ -63,12 +64,10 @@ export async function login(email: string, password: string): Promise<void> {
 }
 
 /**
- * Registers a new account. Only succeeds without an existing session when
- * this is the very first account on a fresh deployment (the backend's
- * bootstrap rule) -- otherwise the backend requires a supervisor's access
- * token, which this bare call won't have.
+ * Registers a public viewer account. The backend promotes only the very
+ * first account to supervisor; submitted role values are ignored here.
  */
-export async function registerFirstAccount(
+export async function registerAccount(
   email: string,
   password: string,
   displayName: string,
@@ -145,6 +144,7 @@ export async function authFetch(path: string, init?: RequestInit): Promise<Respo
       tokens = await refreshTokens();
     } catch {
       clearTokens();
+      window.dispatchEvent(new Event(AUTH_REQUIRED_EVENT));
       throw new AuthRequiredError();
     }
     response = await doFetch(tokens.access_token);

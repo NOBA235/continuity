@@ -72,7 +72,23 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
     RequestContextMiddleware already bound -- structlog's contextvars carry
     it here automatically, no need to thread it through manually."""
     logger.exception("unhandled_exception", path=request.url.path, method=request.method)
-    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+    # ServerErrorMiddleware sits outside the user middleware stack, so an
+    # exception response produced here can otherwise bypass CORSMiddleware.
+    # Preserve CORS headers for configured browser origins so a real backend
+    # failure is visible to the client rather than misreported as a CORS one.
+    origin = request.headers.get("origin")
+    headers: dict[str, str] = {}
+    if origin in _settings.cors_allow_origins:
+        headers = {
+            "Access-Control-Allow-Origin": origin,
+            "Access-Control-Allow-Credentials": "true",
+            "Vary": "Origin",
+        }
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error"},
+        headers=headers,
+    )
 
 
 @app.get("/api/health/live")

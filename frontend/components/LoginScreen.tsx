@@ -3,13 +3,13 @@
 import { Clapperboard, Loader2 } from "lucide-react";
 import { useState } from "react";
 
-import { login, registerFirstAccount } from "@/lib/auth";
+import { login, registerAccount } from "@/lib/auth";
 
 interface LoginScreenProps {
   onAuthenticated: () => void;
 }
 
-type Mode = "login" | "bootstrap";
+type Mode = "login" | "signup";
 
 export function LoginScreen({ onAuthenticated }: LoginScreenProps) {
   const [mode, setMode] = useState<Mode>("login");
@@ -27,7 +27,7 @@ export function LoginScreen({ onAuthenticated }: LoginScreenProps) {
       if (mode === "login") {
         await login(email, password);
       } else {
-        await registerFirstAccount(email, password, displayName);
+        await registerAccount(email, password, displayName);
       }
       onAuthenticated();
     } catch (err) {
@@ -66,21 +66,21 @@ export function LoginScreen({ onAuthenticated }: LoginScreenProps) {
           <button
             type="button"
             onClick={() => {
-              setMode("bootstrap");
+              setMode("signup");
               setError(null);
             }}
             className={`px-3 py-2 text-sm font-medium transition ${
-              mode === "bootstrap"
+              mode === "signup"
                 ? "border-b-2 border-stage-100 text-stage-100"
                 : "text-stage-400 hover:text-stage-200"
             }`}
           >
-            First-time setup
+            Create account
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          {mode === "bootstrap" && (
+          {mode === "signup" && (
             <div>
               <label className="mb-1 block text-xs uppercase tracking-wider text-stage-400" htmlFor="name">
                 Your name
@@ -127,10 +127,10 @@ export function LoginScreen({ onAuthenticated }: LoginScreenProps) {
             />
           </div>
 
-          {mode === "bootstrap" && (
+          {mode === "signup" && (
             <p className="text-xs text-stage-500">
-              This only works once, for the very first account on a fresh deployment. It's
-              automatically granted the supervisor role so you can invite everyone else.
+              Create an account to view the dashboard. The first account is automatically
+              made a supervisor; later accounts have viewer access by default.
             </p>
           )}
 
@@ -142,7 +142,7 @@ export function LoginScreen({ onAuthenticated }: LoginScreenProps) {
             className="mt-2 inline-flex items-center justify-center gap-2 rounded-sm bg-agent-accent/15 px-3 py-2 text-sm font-medium text-agent-accent transition hover:bg-agent-accent/25 disabled:opacity-50"
           >
             {isSubmitting && <Loader2 size={14} className="animate-spin" />}
-            {mode === "login" ? "Sign in" : "Create supervisor account"}
+            {mode === "login" ? "Sign in" : "Create account"}
           </button>
         </form>
       </div>

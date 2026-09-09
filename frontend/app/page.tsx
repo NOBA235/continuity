@@ -20,7 +20,13 @@ import {
   triggerContinuityCheck,
   videoStreamUrl,
 } from "@/lib/api";
-import { fetchCurrentUser, getStoredTokens, logout, type CurrentUser } from "@/lib/auth";
+import {
+  AUTH_REQUIRED_EVENT,
+  fetchCurrentUser,
+  getStoredTokens,
+  logout,
+  type CurrentUser,
+} from "@/lib/auth";
 import type { AgentExecutionStep, ContinuityAnomaly, IngestionJob } from "@/lib/types";
 
 type Tab = "log" | "trace";
@@ -51,6 +57,15 @@ export default function Page() {
   useEffect(() => {
     checkSession();
   }, [checkSession]);
+
+  useEffect(() => {
+    const handleAuthRequired = () => {
+      setCurrentUser(null);
+      setAuthState("unauthenticated");
+    };
+    window.addEventListener(AUTH_REQUIRED_EVENT, handleAuthRequired);
+    return () => window.removeEventListener(AUTH_REQUIRED_EVENT, handleAuthRequired);
+  }, []);
 
   function handleLogout() {
     logout();
