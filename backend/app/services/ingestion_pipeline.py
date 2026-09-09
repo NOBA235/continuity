@@ -87,7 +87,7 @@ def _process_single_frame(
         primary_actor_id,
         descriptor.wardrobe_description,
         descriptor.prop_list,
-        json.dumps(descriptor.prop_states),
+        json.dumps({entry.prop: entry.state for entry in descriptor.prop_states}),
         descriptor.lighting_vector,
         embedding,
         descriptor.confidence_score,

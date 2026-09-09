@@ -5,6 +5,7 @@ from app.models.schemas import (
     AnomalyType,
     ContinuityAnomaly,
     FrameDescriptor,
+    PropState,
     Severity,
 )
 
@@ -13,7 +14,7 @@ def test_frame_descriptor_accepts_well_formed_payload():
     descriptor = FrameDescriptor(
         wardrobe_description="Detective wears a grey trench coat, top button open.",
         prop_list=["coffee mug", "revolver"],
-        prop_states={"coffee_mug_fill_level": "80%"},
+        prop_states=[PropState(prop="coffee_mug_fill_level", state="80%")],
         actor_positions=[],
         lighting_description="Soft key from camera-left, dim practicals in background.",
         lighting_vector=[0.6, 0.3, 3.2, 45.0],

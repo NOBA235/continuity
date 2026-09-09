@@ -2,7 +2,7 @@ from pathlib import Path
 
 from google.genai import errors
 
-from app.models.schemas import FrameDescriptor
+from app.models.schemas import FrameDescriptor, PropState
 from app.services import gemini_vision
 
 
@@ -10,7 +10,7 @@ def _sample_descriptor() -> FrameDescriptor:
     return FrameDescriptor(
         wardrobe_description="Grey trench coat, top button open.",
         prop_list=["coffee mug"],
-        prop_states={"coffee_mug_fill_level": "80%"},
+        prop_states=[PropState(prop="coffee_mug_fill_level", state="80%")],
         actor_positions=[],
         lighting_description="Soft key camera-left.",
         lighting_vector=[0.6, 0.3, 3.2, 45.0],

@@ -24,6 +24,13 @@ class ActorPosition(BaseModel):
     posture: str = Field(description="Standing, seated, leaning on counter, etc.")
 
 
+class PropState(BaseModel):
+    """One prop state entry, represented as a fixed-shape object for Gemini."""
+
+    prop: str = Field(description="Stable prop name or identifier")
+    state: str = Field(description="Visible state of the prop in this frame")
+
+
 class FrameDescriptor(BaseModel):
     """Structured output requested from Gemini for a single keyframe."""
 
@@ -31,9 +38,9 @@ class FrameDescriptor(BaseModel):
         description="Concise description of each visible actor's wardrobe and any visible changes"
     )
     prop_list: list[str] = Field(description="Every distinct prop visible in frame")
-    prop_states: dict[str, str] = Field(
-        default_factory=dict,
-        description="Visual state per prop, e.g. {'wine_glass_fill_level': '50%'}",
+    prop_states: list[PropState] = Field(
+        default_factory=list,
+        description="Visible state for each relevant prop as prop/state entries",
     )
     actor_positions: list[ActorPosition] = Field(default_factory=list)
     lighting_description: str = Field(
